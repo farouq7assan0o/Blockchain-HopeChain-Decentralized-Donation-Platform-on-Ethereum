@@ -49,6 +49,8 @@ The system includes:
 npm init -y
 npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
 npx hardhat test
+
+````
 ** ## Documentation & Analysis**
   - Decentralization: Eliminates central server tampering risks.
   - Consensus: Ethereum’s Proof of Stake provides faster, greener confirmations.
@@ -82,7 +84,7 @@ Continuous logging and monitoring.
   - Hardhat (suggested) (Testing framework)
 
 ## Smart Contract (Solidity)
-
+``` Solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
@@ -141,8 +143,11 @@ contract HopeChain {
         emit Withdrawn(admin, _amount);
     }
 }
-## Frontend (HTML + Ethers.js)
 
+````
+
+## Frontend (HTML + Ethers.js)
+``` html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -201,5 +206,8 @@ contract HopeChain {
   </script>
 </body>
 </html>
+
+````
+
 ## License
 MIT License
