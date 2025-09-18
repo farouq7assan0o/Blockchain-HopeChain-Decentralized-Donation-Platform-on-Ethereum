@@ -49,22 +49,16 @@ The system includes:
 npm init -y
 npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
 npx hardhat test
-Documentation & Analysis
-Decentralization: Eliminates central server tampering risks.
+** ## Documentation & Analysis**
+  - Decentralization: Eliminates central server tampering risks.
+  - Consensus: Ethereum’s Proof of Stake provides faster, greener confirmations.
+  - Governance evolution: Proposes shift from single admin → multisig + on-chain voting.
+  - Threats identified: Sybil attacks, admin lockout, donor privacy exposure.
+  - Privacy solutions: zk-proofs, mixing, pseudonymous addresses.
 
-Consensus: Ethereum’s Proof of Stake provides faster, greener confirmations.
-
-Governance evolution: Proposes shift from single admin → multisig + on-chain voting.
-
-Threats identified: Sybil attacks, admin lockout, donor privacy exposure.
-
-Privacy solutions: zk-proofs, mixing, pseudonymous addresses.
-
-Legal analysis (Jordan):
-
-NGO registration & compliance required.
-
-Crypto banking restrictions challenge deployment.
+  ## Legal analysis (Jordan):
+  - NGO registration & compliance required.
+  - Crypto banking restrictions challenge deployment.
 
 Hybrid blockchain + traditional rails proposed.
 
@@ -78,20 +72,14 @@ Multisig with timelocks.
 
 Continuous logging and monitoring.
 
-Technologies Used
-Solidity 0.8.9 (Smart contract)
-
-Ethereum (PoS) (Execution layer)
-
-Remix IDE & Ganache (Development and testing)
-
-MetaMask (Wallet integration)
-
-Ethers.js v6 (Blockchain interaction in frontend)
-
-HTML, CSS, JavaScript (User interface)
-
-Hardhat (suggested) (Testing framework)
+## Technologies Used
+  - Solidity 0.8.9 (Smart contract)
+  - Ethereum (PoS) (Execution layer)
+  - Remix IDE & Ganache (Development and testing)
+  - MetaMask (Wallet integration)
+  - Ethers.js v6 (Blockchain interaction in frontend)
+  - HTML, CSS, JavaScript (User interface)
+  - Hardhat (suggested) (Testing framework)
 
 ## Smart Contract (Solidity)
 
