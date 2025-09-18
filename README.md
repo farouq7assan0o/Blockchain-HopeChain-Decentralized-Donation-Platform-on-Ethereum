@@ -93,8 +93,8 @@ HTML, CSS, JavaScript (User interface)
 
 Hardhat (suggested) (Testing framework)
 
-Smart Contract (Solidity)
-``` solidity
+## Smart Contract (Solidity)
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
@@ -153,9 +153,8 @@ contract HopeChain {
         emit Withdrawn(admin, _amount);
     }
 }
-Frontend (HTML + Ethers.js)
-html
-Copy code
+## Frontend (HTML + Ethers.js)
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -214,7 +213,5 @@ Copy code
   </script>
 </body>
 </html>
-License
+## License
 MIT License
-
-Copy code
