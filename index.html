@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HopeChain DApp</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input, button { padding: 5px; margin: 5px; }
+    table { margin-top: 10px; border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    hr { margin: 20px 0; }
+    .admin-only { display: none; }
+  </style>
+</head>
+<body>
+  <h2>HopeChain Donation DApp</h2>
+
+  <button onclick="connectWallet()">Connect Wallet</button>
+  <p id="walletAddress">Not connected</p>
+
+  <hr>
+
+  <h3>Donate</h3>
+  <input type="number" id="donationAmount" placeholder="Amount in ETH" min="0.001" step="0.001">
+  <button onclick="donate()">Donate</button>
+
+  <hr>
+
+  <div class="admin-only">
+    <h3>Admin Withdraw</h3>
+    <input type="number" id="withdrawAmount" placeholder="Amount in ETH" min="0.001" step="0.001">
+    <button onclick="withdraw()">Withdraw</button>
+  </div>
+
+  <hr>
+
+  <div class="admin-only">
+    <h3>Contract Balance</h3>
+    <button onclick="getBalance()">Get Balance</button>
+    <p id="balance"></p>
+  </div>
+
+  <hr>
+
+  <h3>Last Donation</h3>
+  <button onclick="getLastDonation()">Show Last Donation</button>
+  <p id="lastDonation"></p>
+
+  <hr>
+
+  <h3>All Donations</h3>
+  <button onclick="getAllDonations()">Show All Donations</button>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Donor</th>
+        <th>Amount (ETH)</th>
+        <th>Timestamp</th>
+      </tr>
+    </thead>
+    <tbody id="donationTableBody"></tbody>
+  </table>
+
+<script>
+  let provider, signer, contract;
+
+  const contractAddress = "0xd4C33abca8E82d2F0a12999BB630f0BA48153108";
+  const contractABI = [
+    "function donate() external payable",
+    "function withdraw(uint256 _amount) external",
+    "function getTotalBalance() public view returns (uint)",
+    "function admin() view returns (address)",
+    "function donationCount() view returns (uint)",
+    "function donations(uint) view returns (address donor, uint amount, uint timestamp)"
+  ];
+
+  async function connectWallet() {
+    if (!window.ethereum) {
+      alert("Please install MetaMask.");
+      return;
+    }
+
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      provider = new ethers.BrowserProvider(window.ethereum);
+      signer = await provider.getSigner();
+      contract = new ethers.Contract(contractAddress, contractABI, signer);
+      document.getElementById("walletAddress").innerText = `Connected: ${accounts[0]}`;
+      checkAdmin();
+    } catch (err) {
+      console.error("Wallet connection failed:", err);
+      alert("Wallet connection failed.");
+    }
+  }
+
+
+  async function checkAdmin() {
+    try {
+      const currentAdmin = await contract.admin();
+      const user = await signer.getAddress();
+      if (currentAdmin.toLowerCase() === user.toLowerCase()) {
+        document.querySelectorAll(".admin-only").forEach(el => el.style.display = "block");
+      }
+    } catch (err) {
+      console.error("Admin check failed:", err);
+    }
+  }
+
+async function donate() {
+  const ethAmount = document.getElementById("donationAmount").value;
+  if (!ethAmount || parseFloat(ethAmount) <= 0) {
+    alert("Enter a valid donation amount.");
+    return;
+  }
+
+  try {
+    // ⏩ Step 1: Force a new block by sending a 0-value tx (to self)
+    const userAddress = await signer.getAddress();
+    await signer.sendTransaction({
+      to: userAddress,
+      value: ethers.parseEther("0")
+    });
+
+    // ⏩ Step 2: Proceed with donation
+    const tx = await contract.donate({ value: ethers.parseEther(ethAmount) });
+    await tx.wait();
+    alert("Donation successful!");
+    document.getElementById("donationAmount").value = "";
+  } catch (err) {
+    console.error(err);
+    const errorMsg = err?.info?.error?.message || err?.shortMessage || err.message;
+    alert(`Donation failed: ${errorMsg}`);
+  }
+}
+
+
+
+  async function withdraw() {
+    const amount = document.getElementById("withdrawAmount").value;
+    if (!amount || parseFloat(amount) <= 0) {
+      alert("Enter a valid amount to withdraw.");
+      return;
+    }
+
+    try {
+      const tx = await contract.withdraw(ethers.parseEther(amount));
+      await tx.wait();
+      alert("Withdrawal successful!");
+      document.getElementById("withdrawAmount").value = ""; // clear field
+    } catch (err) {
+      console.error(err);
+      alert(`Withdrawal failed: ${err.message}`);
+    }
+  }
+
+  async function getBalance() {
+    try {
+      const balance = await contract.getTotalBalance();
+      document.getElementById("balance").innerText = `${ethers.formatEther(balance)} ETH`;
+    } catch (err) {
+      console.error(err);
+      alert("Error fetching balance.");
+    }
+  }
+
+  async function getLastDonation() {
+    try {
+      const count = await contract.donationCount();
+      if (count == 0) {
+        document.getElementById("lastDonation").innerText = "No donations yet.";
+        return;
+      }
+
+      const last = await contract.donations(count); // donations(count) is fine if IDs are 1-based
+      const date = new Date(Number(last.timestamp) * 1000).toLocaleString();
+      document.getElementById("lastDonation").innerText =
+        `Donor: ${last.donor}, Amount: ${ethers.formatEther(last.amount)} ETH, Time: ${date}`;
+    } catch (err) {
+      console.error(err);
+      alert("Could not fetch last donation.");
+    }
+  }
+
+async function debugLastDonationTime() {
+  const user = await signer.getAddress();
+  const lastTime = await contract.getLastDonationTime(user);
+  console.log("On-chain last donation timestamp:", Number(lastTime));
+  console.log("Now:", Math.floor(Date.now() / 1000));
+}
+
+  async function getAllDonations() {
+    try {
+      const count = await contract.donationCount();
+      const tableBody = document.getElementById("donationTableBody");
+      tableBody.innerHTML = "";
+
+      if (count == 0) {
+        tableBody.innerHTML = "<tr><td colspan='4'>No donations yet.</td></tr>";
+        return;
+      }
+
+      for (let i = 1; i <= count; i++) {
+        const d = await contract.donations(i);
+        const date = new Date(Number(d.timestamp) * 1000).toLocaleString();
+        const row = `
+          <tr>
+            <td>${i}</td>
+            <td>${d.donor}</td>
+            <td>${ethers.formatEther(d.amount)}</td>
+            <td>${date}</td>
+          </tr>`;
+        tableBody.innerHTML += row;
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Could not load donation history.");
+    }
+  }
+</script>
+</body>
+</html>
