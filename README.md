@@ -1,87 +1,220 @@
-# HopeChain – Decentralized Donation Platform on Ethereum
+# HopeChain – Transparent Donation DApp
 
-## **Overview**
+## Overview
+HopeChain is a blockchain-based donation platform that ensures transparency, immutability, and accountability of charitable contributions. It replaces traditional opaque databases with smart contracts on Ethereum, enabling donors, regulators, and beneficiaries to verify transactions in real time.  
 
-HopeChain is a blockchain-based decentralized donation platform built on the Ethereum network. It enables transparent, tamper-proof, and trustless donation tracking using smart contracts, with an accessible frontend and strong access control. The platform was designed to solve real-world transparency and accountability issues in traditional charity systems.
+The system includes:
+- A Solidity smart contract for secure donation and withdrawal logic.
+- A web frontend (HTML + Ethers.js) for user interaction with MetaMask.
+- A comprehensive documentation and analysis report covering governance, threats, privacy, regulation, and future improvements.
 
-## **Features**
+## Features
+- **On-chain donation ledger**: Every donation records donor, amount, and timestamp permanently.
+- **Spam protection**: 5-second cooldown per donor to reduce spam attempts.
+- **Admin-only withdrawals**: Only the contract deployer can withdraw funds.
+- **Events for transparency**: Emission of `Donated` and `Withdrawn` logs.
+- **Web DApp**:
+  - Wallet connection via MetaMask.
+  - Easy donation submission.
+  - Table of all donations and timestamps.
+  - Admin-only dashboard for balance and withdrawals.
 
-- **Smart Contract in Solidity**: Records and stores every donation immutably.
-- **Ethers.js Frontend**: Connects users' wallets (via MetaMask) to a live donation DApp.
-- **Admin-only Withdrawals**: Ensures only authorized fund release.
-- **Rate-limiting**: Prevents donation spam using on-chain timestamp tracking.
-- **Real-time Display**: Users can see all donations, contract balance, and last donation.
-- **Event Emissions**: For off-chain monitoring and blockchain transparency.
+## Security
+- Access control with `onlyAdmin` modifier.
+- Zero-value donations blocked.
+- Spam rate-limiting on donations.
+- Analysis of key risks:
+  - **Reentrancy attacks**: Mitigated by using `transfer()` and structured withdrawal.
+  - **Single admin failure**: Needs multisig and ownership transfer.
+  - **Sybil spam**: Multiple wallets can bypass throttle → requires off-chain controls.
+  - **Privacy leaks**: Donor addresses exposed → future work includes zkSNARKs, mixers, or stealth addresses.
+- Improvements proposed:
+  - Pausable contracts for emergency stops.
+  - Timelocks on large withdrawals.
+  - Multi-signature wallets for shared governance.
+  - Automated and manual audits for long-term security.
 
-## **Smart Contract Functions**
+## Testing
+- **Manual**:
+  - Donations tested with MetaMask and displayed in frontend.
+  - Non-admin withdrawals fail with access error.
+  - Repeated donations within 5 seconds rejected.
+- **Automated (suggested)**:
+  - Hardhat test suite for unit/integration cases.
+  - Slither/Mythril static analysis.
+  - Event tracking verification.
 
-```solidity
-function donate() public payable
-function withdraw(uint _amount) public onlyAdmin
-function getTotalBalance() public view returns (uint)
-function getLastDonationTime(address _addr) public view returns (uint)
-function getNow() public view returns (uint)
-````
+```bash
+# Example Hardhat setup
+npm init -y
+npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
+npx hardhat test
+Documentation & Analysis
+Decentralization: Eliminates central server tampering risks.
 
-* `donate()`: Accepts ETH and records donor address, amount, and timestamp.
-* `withdraw()`: Allows the admin to withdraw funds, protected by `onlyAdmin` modifier.
-* `getTotalBalance()`: Displays total ETH balance in the contract.
-* `getLastDonationTime()`: Prevents rapid re-donations to mitigate spam.
-* `getNow()`: On-chain timestamp utility.
+Consensus: Ethereum’s Proof of Stake provides faster, greener confirmations.
 
-## **Frontend Functionality (index.html)**
+Governance evolution: Proposes shift from single admin → multisig + on-chain voting.
 
-* **Connect Wallet**: MetaMask integration
-* **Donation Entry**: ETH input and real-time donation confirmation
-* **Admin Withdrawals**: UI protected based on connected wallet
-* **Live Contract Data**: Display contract balance and donation history
-* **Donation Table**: Dynamic rendering of all previous donations
+Threats identified: Sybil attacks, admin lockout, donor privacy exposure.
 
-## **Security and Governance**
+Privacy solutions: zk-proofs, mixing, pseudonymous addresses.
 
-* **Admin-Only Access**: Set during contract deployment
-* **Replay Attack Mitigation**: Uses timestamp and mapping for rate-limiting
-* **Withdrawal Validation**: Requires sufficient balance
+Legal analysis (Jordan):
 
-### **Events Logged**
+NGO registration & compliance required.
 
-* `Donated(address donor, uint amount, uint timestamp)`
-* `Withdrawn(address admin, uint amount)`
+Crypto banking restrictions challenge deployment.
 
-## **Key Lessons and Reflections**
+Hybrid blockchain + traditional rails proposed.
 
-* **Identified Reentrancy Risks**: Added `.transfer()` instead of `.call()` to avoid exploits
-* **Single Point of Failure**: Future upgrades include multisig wallets and emergency recovery
-* **Donor Privacy Risks**: Explored zk-SNARKs, ring signatures, and address freshness
-* **Legal Compliance Research**: Analyzed Jordanian law conflicts and potential hybrid models
-* **Sybil Resistance**: Highlighted spam vulnerability via multiple wallet generation
-* **DAO Hack Analysis**: Studied real-world exploit and applied mitigation patterns
+Lessons from The DAO:
 
-## **Tech Stack**
+Explicit reentrancy guards.
 
-* **Solidity (v0.8.9)** – Smart Contract Logic
-* **Remix IDE** – Contract Compilation and Deployment
-* **Ethers.js** – Wallet and blockchain interaction
-* **MetaMask** – Ethereum wallet integration
-* **HTML/CSS/JS** – Web interface
+Emergency pause switches.
 
-## **How to Run Locally**
+Multisig with timelocks.
 
-1. Install MetaMask and fund a wallet with test ETH on Goerli or Sepolia.
-2. Deploy contract via Remix using `HopeChain.sol`.
-3. Replace contract address in `index.html` JavaScript.
-4. Open `index.html` in a browser, connect your wallet, and interact with the DApp.
+Continuous logging and monitoring.
 
-## **Future Improvements**
+Technologies Used
+Solidity 0.8.9 (Smart contract)
 
-* Add `transferOwnership()` or multisig support for admin control
-* Introduce donor pseudonymity using zk-proofs or address freshness
-* Implement frontend spam filtering and ENS-based trust scoring
-* Expand dashboard for donation analytics and proposal-based fund allocation
+Ethereum (PoS) (Execution layer)
 
-## **Author**
+Remix IDE & Ganache (Development and testing)
 
-Farouq Hassan
-Spring 2023–2024
-HTU – Blockchain Development
-Supervisor: Sami AlMashaqbeh
+MetaMask (Wallet integration)
+
+Ethers.js v6 (Blockchain interaction in frontend)
+
+HTML, CSS, JavaScript (User interface)
+
+Hardhat (suggested) (Testing framework)
+
+Smart Contract (Solidity)
+``` solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
+
+contract HopeChain {
+    address public admin;
+    uint public donationCount;
+
+    struct Donation {
+        address donor;
+        uint amount;
+        uint timestamp;
+    }
+
+    mapping(uint => Donation) public donations;
+    mapping(address => uint) public lastDonationTime;
+
+    event Donated(address indexed donor, uint amount, uint timestamp);
+    event Withdrawn(address indexed admin, uint amount);
+
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "Only admin can perform this action.");
+        _;
+    }
+
+    constructor() {
+        admin = msg.sender;
+    }
+
+    function donate() public payable {
+        require(msg.value > 0, "Cannot donate zero.");
+        require(block.timestamp - lastDonationTime[msg.sender] > 5 seconds, "Wait 5s before donating again.");
+
+        donationCount++;
+        donations[donationCount] = Donation(msg.sender, msg.value, block.timestamp);
+        lastDonationTime[msg.sender] = block.timestamp;
+
+        emit Donated(msg.sender, msg.value, block.timestamp);
+    }
+
+    function getLastDonationTime(address _addr) public view returns (uint) {
+        return lastDonationTime[_addr];
+    }
+
+    function getNow() public view returns (uint) {
+        return block.timestamp;
+    }
+
+    function getTotalBalance() public view returns (uint) {
+        return address(this).balance;
+    }
+
+    function withdraw(uint _amount) public onlyAdmin {
+        require(_amount <= address(this).balance, "Insufficient funds.");
+        payable(admin).transfer(_amount);
+
+        emit Withdrawn(admin, _amount);
+    }
+}
+Frontend (HTML + Ethers.js)
+html
+Copy code
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HopeChain DApp</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+  <h2>HopeChain Donation DApp</h2>
+  <button onclick="connectWallet()">Connect Wallet</button>
+  <p id="walletAddress">Not connected</p>
+
+  <h3>Donate</h3>
+  <input type="number" id="donationAmount" placeholder="Amount in ETH">
+  <button onclick="donate()">Donate</button>
+
+  <div class="admin-only">
+    <h3>Admin Withdraw</h3>
+    <input type="number" id="withdrawAmount" placeholder="Amount in ETH">
+    <button onclick="withdraw()">Withdraw</button>
+  </div>
+
+  <script>
+    let provider, signer, contract;
+    const contractAddress = "YOUR_DEPLOYED_ADDRESS";
+    const contractABI = [
+      "function donate() external payable",
+      "function withdraw(uint256 _amount) external",
+      "function getTotalBalance() public view returns (uint)",
+      "function admin() view returns (address)",
+      "function donationCount() view returns (uint)",
+      "function donations(uint) view returns (address donor, uint amount, uint timestamp)"
+    ];
+
+    async function connectWallet() {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      provider = new ethers.BrowserProvider(window.ethereum);
+      signer = await provider.getSigner();
+      contract = new ethers.Contract(contractAddress, contractABI, signer);
+      document.getElementById("walletAddress").innerText = `Connected: ${accounts[0]}`;
+    }
+
+    async function donate() {
+      const ethAmount = document.getElementById("donationAmount").value;
+      const tx = await contract.donate({ value: ethers.parseEther(ethAmount) });
+      await tx.wait();
+      alert("Donation successful!");
+    }
+
+    async function withdraw() {
+      const amount = document.getElementById("withdrawAmount").value;
+      const tx = await contract.withdraw(ethers.parseEther(amount));
+      await tx.wait();
+      alert("Withdrawal successful!");
+    }
+  </script>
+</body>
+</html>
+License
+MIT License
+
+Copy code
